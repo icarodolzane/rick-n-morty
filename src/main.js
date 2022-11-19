@@ -1,19 +1,24 @@
+import { createGeneralElement } from './helpers/useful'
 const BASE_URL = 'https://rickandmortyapi.com/api/character/'
-const someID = 1
-
+const getSectionMainCharacter = document.querySelector('.main-character')
 const fetchAPI = (url) => {
   return fetch(url)
 }
 
-const renderRick = () => {
-  const getImage = document.querySelector('.img-character')
-  const getName = document.querySelector('.description-character h4')
-  const getDescriptions = document.querySelector('.description-character p')
-  fetchAPI(`${BASE_URL}${someID}`)
+const renderCharacter = (id) => {
+  fetchAPI(`${BASE_URL}${id}`)
     .then(result => result.json())
     .then(data => {
+      const getCardFrame = createGeneralElement('div', 'card-frame')
+      getSectionMainCharacter.appendChild(getCardFrame)
+      const getImage = createGeneralElement('img', 'img-character')
+      getCardFrame.appendChild(getImage)
       getImage.src = data.image
+      const getName = createGeneralElement('h4', 'description-character h4')
+      getCardFrame.appendChild(getName)
       getName.innerHTML = data.name
+      const getDescriptions = createGeneralElement('p', '.description-character p')
+      getCardFrame.appendChild(getDescriptions)
       getDescriptions.innerHTML =
       `
       Status: ${data.status}<br>
@@ -24,4 +29,22 @@ const renderRick = () => {
     })
 }
 
-renderRick()
+const fetchAllCharacters = async () => {
+  const response = await fetchAPI(BASE_URL)
+  const data = await response.json()
+  return data.results
+}
+
+const renderMainCharacters = async () => {
+  const data = await fetchAllCharacters()
+  data.forEach(element => {
+    console.log(element.name, element.id)
+    if (element.id < 6) {
+      renderCharacter(element.id)
+    }
+  })
+}
+
+window.onload = () => {
+  renderMainCharacters()
+}
